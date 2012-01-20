@@ -1,0 +1,33 @@
+-- -*- mode: ada -*-
+
+project Lovelace is
+  for Source_Dirs use (".");
+  for Object_Dir use "build";
+  for Languages use ("Ada");
+  for Exec_Dir use ".";
+
+  for main use ("lovelace.adb");
+
+  package Compiler is
+     for Default_Switches ("Ada")
+       use ("-O3",
+            "-ggdb",
+            "-fstack-check",
+            "-gnatwadleG",
+            "-gnatVa",
+            "-gnato",
+            "-gnata",
+            "-gnatW8",
+            "-gnatiw",
+            "-gnaty2aAbdefhiklnprStu");
+  end Compiler;
+
+  package Linker is
+     for Default_Switches ("Ada")
+       use ("-O3",
+            "-ggdb",
+            "-fstack-check",
+            "-W8",
+            "-iw");
+  end Linker;
+end Lovelace;
