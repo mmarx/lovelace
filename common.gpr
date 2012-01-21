@@ -1,0 +1,41 @@
+-- -*- mode: ada -*-
+
+abstract project Common is
+  type Mode_Type is ("debug", "release");
+  Mode : Mode_Type := External ("mode", "debug");
+
+  package Compiler is
+    Common_Switches := ("-fstack-check",
+                        "-gnatwadleG",
+                        "-gnatVa",
+                        "-gnato",
+                        "-gnata",
+                        "-gnatW8",
+                        "-gnatiw",
+                        "-gnaty2aAbdefhiklnprStu");
+
+     case Mode is
+       when "debug" =>
+         for Default_Switches ("Ada")
+           use ("-ggdb") & Common_Switches;
+       when "release" =>
+         for Default_Switches ("Ada")
+           use ("-O3") & Common_Switches;
+     end case;
+  end Compiler;
+
+  package Linker is
+    Common_Switches := ("-fstack-check",
+                        "-W8",
+                        "-iw");
+
+     case Mode is
+       when "debug" =>
+         for Switches ("Ada")
+           use ("-ggdb") & Common_Switches;
+       when "release" =>
+         for Switches ("Ada")
+           use ("-O3") & Common_Switches;
+     end case;
+  end Linker;
+end Common;

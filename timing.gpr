@@ -1,0 +1,24 @@
+-- -*- mode: ada -*-
+
+with "common";
+
+library project Timing is
+  Version := "1";
+
+  for Object_Dir use "build";
+  for Source_Dirs use ("timing");
+  for Library_Dir use "lib";
+  for Library_Name use "timing";
+  for Library_Version use "libtiming.so." & Version;
+
+  package Compiler extends Common.Compiler is
+    for Switches ("x86_64_linux_gnu_bits_types_h.ads")
+      use ("");
+    for Switches ("x86_64_linux_gnu_bits_time_h.ads")
+      use ("");
+    for Switches ("x86_64_linux_gnu_bits_resource_h.ads")
+      use ("");
+    for Switches ("sys_resource_h.ads")
+      use ("");
+  end Compiler;
+end Timing;
