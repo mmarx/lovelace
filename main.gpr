@@ -1,6 +1,7 @@
 -- -*- mode: ada -*-
 
 with "common";
+with "timing";
 
 project Main is
   for Source_Dirs use (".");

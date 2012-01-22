@@ -3,6 +3,8 @@ with Ada.Text_IO;
 with Matrices;
 with Matrices.Gaussian;
 
+with Timings;
+
 procedure Lovelace is
   use Ada.Text_IO;
   package I is new Float_IO (Float);
@@ -61,4 +63,6 @@ begin
 
   Put (U);
   New_Line;
+
+  Timings.Put (Timings.Resource_Usage (Timings.Self));
 end Lovelace;

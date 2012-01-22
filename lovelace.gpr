@@ -1,5 +1,5 @@
 -- -*- mode: ada -*-
 
 aggregate project Lovelace is
-  for Project_Files use ("timing.gpr", "main.gpr");
+  for Project_Files use ("main.gpr");
 end Lovelace;
