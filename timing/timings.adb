@@ -7,6 +7,35 @@ package body Timings is
 
   package I_IO is new Ada.Text_IO.Integer_IO (Integer);
 
+  function "-" (Left, Right : in Time_Type) return Time_Type is
+    Result : constant Time_Type := (Seconds =>
+                                      Left.Seconds - Right.Seconds,
+                                    Micro_Seconds =>
+                                      Left.Micro_Seconds -
+                                      Right.Micro_Seconds);
+  begin
+    return Result;
+  end "-";
+
+  function "-" (Left, Right : in Usage_Type) return Usage_Type is
+    Result : constant Usage_Type := (User_Time =>
+                                       Left.User_Time - Right.User_Time,
+                                     System_Time =>
+                                       Left.System_Time - Right.System_Time,
+                                     In_IO =>
+                                       Left.In_IO - Right.In_IO,
+                                     Out_IO =>
+                                       Left.Out_IO - Right.Out_IO,
+                                     Voluntary_Context_Switches =>
+                                       Left.Voluntary_Context_Switches -
+                                       Right.Voluntary_Context_Switches,
+                                     Involuntary_Context_Switches =>
+                                       Left.Involuntary_Context_Switches -
+                                       Right.Involuntary_Context_Switches);
+  begin
+    return Result;
+  end "-";
+
   function Resource_Usage (Who : in Usage_Who) return Usage_Type is
     package R renames sys_resource_h;
     package BT renames x86_64_linux_gnu_bits_time_h;

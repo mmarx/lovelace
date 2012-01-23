@@ -23,6 +23,9 @@ package Timings is
     Involuntary_Context_Switches : Context_Switches_Type;
   end record;
 
+  function "-" (Left, Right : in Time_Type) return Time_Type;
+  function "-" (Left, Right : in Usage_Type) return Usage_Type;
+
   function Resource_Usage (Who : in Usage_Who) return Usage_Type;
 
   procedure Put (Item : in Time_Type);

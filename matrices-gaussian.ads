@@ -9,4 +9,7 @@ package Matrices.Gaussian is
                                  B : in Vector) return Vector;
   function Backward_Substitution (U : in Matrix;
                                   Y : in Vector) return Vector;
+
+  function LU_Solve (A : in Matrix;
+                     B : in Vector) return Vector;
 end Matrices.Gaussian;

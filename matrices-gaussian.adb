@@ -87,4 +87,15 @@ package body Matrices.Gaussian is
     return X;
   end Backward_Substitution;
 
+  function LU_Solve (A : in Matrix;
+                     B : in Vector) return Vector is
+    L, U : Matrix (A'Range (1), A'Range (2));
+    X, Y : Vector (B'Range);
+  begin
+    LU_Decomposition (A, L, U);
+    Y := Forward_Substitution (L, B);
+    X := Backward_Substitution (U, Y);
+
+    return X;
+  end LU_Solve;
 end Matrices.Gaussian;

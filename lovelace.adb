@@ -4,6 +4,7 @@ with Matrices;
 with Matrices.Gaussian;
 
 with Timings;
+with Timings.Benchmarks;
 
 procedure Lovelace is
   use Ada.Text_IO;
@@ -29,40 +30,29 @@ procedure Lovelace is
 
   use M;
   use G;
-  use I;
 
   A : constant Matrix (1 .. 2, 1 .. 2) := ((1.0, 1.0),
                                            (1.0, 0.0));
   B : constant Vector (1 .. 2) := (23.0, 42.0);
 
-  L, U : Matrix (1 .. 2, 1 .. 2);
-  X, Y : Vector (1 .. 2);
+  type Parameter_Type (N : Integer) is record
+    A : Matrix (1 .. N, 1 .. N);
+    B : Vector (1 .. N);
+  end record;
+
+  package BM is new Timings.Benchmarks (Parameter_Type);
+
+  procedure Benchmark_LU (Parameters : in Parameter_Type) is
+    X : Vector (Parameters.B'Range);
+  begin
+    X := LU_Solve (Parameters.A, Parameters.B);
+    pragma Unreferenced (X);
+  end Benchmark_LU;
+
 begin
-  Put_Line ("hello, world!");
-
-  LU_Decomposition (A, L, U);
-  Y := Forward_Substitution (L, B);
-  X := Backward_Substitution (U, Y);
-
-  Put (X);
-  New_Line;
-
-  Y := A * X;
-
-  New_Line;
-
-  Put (Y);
-  New_Line;
-
-  New_Line;
-
-  Put (L);
-  New_Line;
-
-  New_Line;
-
-  Put (U);
-  New_Line;
-
-  Timings.Put (Timings.Resource_Usage (Timings.Self));
+  BM.Benchmark (What => Benchmark_LU'Access,
+                Name => "2x2 LU decomposition",
+                Parameters => (N => 2,
+                               A => A,
+                               B => B));
 end Lovelace;
