@@ -1,100 +1,135 @@
 package body Matrices.Gaussian is
-  procedure LU_Decomposition (A : in Matrix;
-                              L, U : out Matrix) is
+  procedure LU_Decomposition (A : Matrix_Access;
+                              L, U : Matrix_Access) is
 
-    B : Matrix := A;
+    B : Matrix_Access := new Matrix (A'Range (1),
+                                     A'Range (2));
 
     F : constant Integer := A'First (1);
     N : constant Integer := A'Last (1);
 
   begin
-    if not Is_Square (A) then
+    if not Is_Square (A.all) then
       raise Non_Square_Matrix;
     end if;
+
+    B.all := A.all;
 
     for I in F .. N loop
       for J in I .. N loop
         for K in F .. I - 1 loop
-          B (I, J) := B (I, J) - B (I, K) * B (K, J);
+          B.all (I, J) := B.all (I, J) - B.all (I, K) * B.all (K, J);
         end loop;
       end loop;
 
       for J in I + 1 .. N loop
         for K in F .. I - 1 loop
-          B (J, I) := B (J, I) - B (J, K) * B (K, I);
+          B.all (J, I) := B.all (J, I) - B.all (J, K) * B.all (K, I);
         end loop;
 
-        B (J, I) := B (J, I) / B (I, I);
+        B.all (J, I) := B.all (J, I) / B.all (I, I);
       end loop;
     end loop;
 
     for I in F .. N loop
       for J in F .. N loop
         if I > J then
-          L (J, I) := Zero;
-          L (I, J) := B (I, J);
-          U (I, J) := Zero;
-          U (J, I) := B (J, I);
+          L.all (J, I) := Zero;
+          L.all (I, J) := B.all (I, J);
+          U.all (I, J) := Zero;
+          U.all (J, I) := B.all (J, I);
         end if;
       end loop;
 
-      L (I, I) := One;
-      U (I, I) := B (I, I);
+      L.all (I, I) := One;
+      U.all (I, I) := B.all (I, I);
     end loop;
+  exception
+    when others =>
+      Free (B);
+
+      raise;
   end LU_Decomposition;
 
-  function Forward_Substitution (L : in Matrix;
-                                 B : in Vector) return Vector is
-    Y : Vector (B'Range) := (others => Zero);
+  function Forward_Substitution (L : Matrix_Access;
+                                 B : Vector_Access) return Vector_Access is
+    Y : Vector_Access := new Vector (B'Range);
     S : Scalar := Zero;
   begin
-    if not Is_Square (L) then
+    if not Is_Square (L.all) then
       raise Non_Square_Matrix;
     end if;
 
-    Equal_Range (Row (L, L'First (1)), B);
+    Equal_Range (Row (L.all, L'First (1)), B.all);
 
     for I in Y'Range loop
       for K in Y'First .. I - 1 loop
-        S := S + L (I, K) * Y (K);
+        S := S + L.all (I, K) * Y.all (K);
       end loop;
 
-      Y (I) := (B (I) - S) / L (I, I);
+      Y.all (I) := (B.all (I) - S) / L.all (I, I);
     end loop;
 
     return Y;
+  exception
+    when others =>
+      Free (Y);
+
+      raise;
   end Forward_Substitution;
 
-  function Backward_Substitution (U : in Matrix;
-                                  Y : in Vector) return Vector is
-    X : Vector (Y'Range) := (others => Zero);
+  function Backward_Substitution (U : Matrix_Access;
+                                  Y : Vector_Access) return Vector_Access is
+    X : Vector_Access := new Vector (Y'Range);
     S : Scalar := Zero;
   begin
-    if not Is_Square (U) then
+    if not Is_Square (U.all) then
       raise Non_Square_Matrix;
     end if;
 
-    Equal_Range (Row (U, U'First (1)), Y);
+    Equal_Range (Row (U.all, U'First (1)), Y.all);
 
     for I in reverse X'Range loop
       for K in I + 1 .. X'Last loop
-        S := S + U (I, K) * X (K);
+        S := S + U.all (I, K) * X.all (K);
       end loop;
 
-      X (I) := (Y (I) - S) / U (I, I);
+      X.all (I) := (Y.all (I) - S) / U.all (I, I);
     end loop;
 
     return X;
+  exception
+    when others =>
+      Free (X);
+
+      raise;
   end Backward_Substitution;
 
-  function LU_Solve (A : in Matrix;
-                     B : in Vector) return Vector is
-    L, U : Matrix (A'Range (1), A'Range (2));
-    X, Y : Vector (B'Range);
+  function LU_Solve (A : Matrix_Access;
+                     B : Vector_Access) return Vector_Access is
+    L : Matrix_Access := new Matrix (A'Range (1),
+                                     A'Range (2));
+    U : Matrix_Access := new Matrix (A'Range (1),
+                                     A'Range (2));
+    X : Vector_Access := new Vector (B'Range);
+    Y : Vector_Access := new Vector (B'Range);
   begin
-    LU_Decomposition (A, L, U);
-    Y := Forward_Substitution (L, B);
-    X := Backward_Substitution (U, Y);
+    declare
+    begin
+      LU_Decomposition (A, L, U);
+      Y := Forward_Substitution (L, B);
+      X := Backward_Substitution (U, Y);
+    exception
+      when others =>
+        Free (L);
+        Free (U);
+        Free (X);
+        Free (Y);
+    end;
+
+    Free (L);
+    Free (U);
+    Free (Y);
 
     return X;
   end LU_Solve;

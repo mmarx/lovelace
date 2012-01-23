@@ -1,4 +1,5 @@
 with Ada.Text_IO;
+with Ada.Unchecked_Deallocation;
 
 generic
   type Scalar is private;
@@ -35,6 +36,9 @@ package Matrices is
   type Vector is array (Integer range <>) of Scalar;
   type Matrix is array (Integer range <>,
                         Integer range <>) of Scalar;
+
+  type Vector_Access is access Vector;
+  type Matrix_Access is access Matrix;
 
   function "+" (Left, Right : in Vector) return Vector;
   function "-" (Right : in Vector) return Vector;
@@ -88,6 +92,10 @@ package Matrices is
   procedure Get (File : in Ada.Text_IO.File_Type;
                  Item : out Matrix);
 
+  procedure Free is new Ada.Unchecked_Deallocation (Object => Vector,
+                                                    Name => Vector_Access);
+  procedure Free is new Ada.Unchecked_Deallocation (Object => Matrix,
+                                                    Name => Matrix_Access);
 private
   procedure Equal_Range (Left, Right : in Vector);
   procedure Equal_Ranges (Left, Right : in Matrix);

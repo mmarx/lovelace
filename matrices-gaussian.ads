@@ -2,14 +2,14 @@ generic
 package Matrices.Gaussian is
   Non_Square_Matrix : exception;
 
-  procedure LU_Decomposition (A : in Matrix;
-                              L, U : out Matrix);
+  procedure LU_Decomposition (A : Matrix_Access;
+                              L, U : Matrix_Access);
 
-  function Forward_Substitution (L : in Matrix;
-                                 B : in Vector) return Vector;
-  function Backward_Substitution (U : in Matrix;
-                                  Y : in Vector) return Vector;
+  function Forward_Substitution (L : Matrix_Access;
+                                 B : Vector_Access) return Vector_Access;
+  function Backward_Substitution (U : Matrix_Access;
+                                  Y : Vector_Access) return Vector_Access;
 
-  function LU_Solve (A : in Matrix;
-                     B : in Vector) return Vector;
+  function LU_Solve (A : Matrix_Access;
+                     B : Vector_Access) return Vector_Access;
 end Matrices.Gaussian;
