@@ -1,4 +1,6 @@
 package body Matrices is
+  use Ada.Text_IO;
+
   function "+" (Left, Right : in Vector) return Vector is
     Result : Vector := Left;
   begin
@@ -247,39 +249,92 @@ package body Matrices is
     return True;
   end Is_Lower_Triangular;
 
-  procedure Put (V : in Vector) is
-    use Ada.Text_IO;
+  procedure Put (Item : in Vector) is
   begin
-    Put ("[ ");
+    Put (File => Standard_Output,
+         Item => Item);
+  end Put;
 
-    for I in V'Range loop
-      Put (V (I));
-      if I /= V'Last then
-        Put (", ");
+  procedure Put (File : in File_Type;
+                 Item : in Vector) is
+  begin
+    Put (File => File,
+         Item => "[ ");
+
+    for I in Item'Range loop
+      Put (File => File,
+           Item => Item (I));
+      if I /= Item'Last then
+        Put (File => File,
+             Item => ", ");
       end if;
     end loop;
 
-    Put (" ]");
+    Put (File => File,
+         Item => " ]");
   end Put;
 
-  procedure Put (A : in Matrix) is
-    use Ada.Text_IO;
+  procedure Put (Item : in Matrix) is
   begin
-    Put ("[");
-    for I in A'Range (1) loop
-      if I /= A'First (1) then
-        Put (" ");
+    Put (File => Standard_Output,
+         Item => Item);
+  end Put;
+
+  procedure Put (File : in File_Type;
+                 Item : in Matrix) is
+  begin
+    Put (File => File,
+         Item => "[");
+    for I in Item'Range (1) loop
+      if I /= Item'First (1) then
+        Put (File => File,
+             Item => " ");
       end if;
 
-      Put (Row (A, I));
+      Put (File => File,
+           Item => Row (Item, I));
 
-      if I /= A'Last (1) then
-        Put (",");
-        New_Line;
+      if I /= Item'Last (1) then
+        Put (File => File,
+             Item => ",");
+        New_Line (File => File);
       end if;
     end loop;
-    Put ("]");
+    Put (File => File,
+         Item => "]");
   end Put;
+
+  procedure Get (Item : out Vector) is
+  begin
+    Get (File => Standard_Input,
+         Item => Item);
+  end Get;
+
+  procedure Get (File : in File_Type;
+                Item : out Vector) is
+  begin
+    for I in Item'Range loop
+      Get (File => File,
+          Item => Item (I));
+    end loop;
+  end Get;
+
+  procedure Get (Item : out Matrix) is
+  begin
+    Get (File => Standard_Input,
+         Item => Item);
+  end Get;
+
+  procedure Get (File : in File_Type;
+                 Item : out Matrix) is
+  begin
+    for I in Item'Range (1) loop
+      for J in Item'Range (2) loop
+        Get (File => File,
+             Item => Item (I, J));
+      end loop;
+    end loop;
+  end Get;
 
   procedure Equal_Range (Left, Right : in Vector) is
   begin
