@@ -5,7 +5,9 @@ with x86_64_linux_gnu_bits_resource_h;
 package body Timings is
   use Ada.Text_IO;
 
-  package I_IO is new Ada.Text_IO.Integer_IO (Integer);
+  subtype Long is Interfaces.C.long;
+
+  package I_IO is new Ada.Text_IO.Integer_IO (Long);
 
   function "-" (Left, Right : in Time_Type) return Time_Type is
     Result : constant Time_Type := (Seconds =>
@@ -96,9 +98,9 @@ package body Timings is
                  Item : in Time_Type) is
     use I_IO;
   begin
-    Put (File => File, Item => Integer (Item.Seconds), Width => 0);
+    Put (File => File, Item => Long (Item.Seconds), Width => 0);
     Put (File => File, Item => ".");
-    Put (File => File, Item => Integer (Item.Micro_Seconds), Width => 0);
+    Put (File => File, Item => Long (Item.Micro_Seconds), Width => 0);
   end Put;
 
   procedure Put (Item : in Usage_Type) is
@@ -120,22 +122,22 @@ package body Timings is
     New_Line (File => File);
 
     Put (File => File, Item => "Input I/O operations: ");
-    Put (File => File, Item => Integer (Item.In_IO), Width => 0);
+    Put (File => File, Item => Long (Item.In_IO), Width => 0);
     New_Line (File => File);
 
     Put (File => File, Item => "Output I/O operations: ");
-    Put (File => File, Item => Integer (Item.Out_IO), Width => 0);
+    Put (File => File, Item => Long (Item.Out_IO), Width => 0);
     New_Line (File => File);
 
     Put (File => File, Item => "Voluntary context switches: ");
     Put (File => File,
-         Item => Integer (Item.Voluntary_Context_Switches),
+         Item => Long (Item.Voluntary_Context_Switches),
          Width => 0);
     New_Line (File => File);
 
     Put (File => File, Item => "Involuntary context switches: ");
     Put (File => File,
-         Item => Integer (Item.Involuntary_Context_Switches),
+         Item => Long (Item.Involuntary_Context_Switches),
          Width => 0);
     New_Line (File => File);
   end Put;
