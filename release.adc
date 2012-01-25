@@ -1,0 +1,2 @@
+-- -*- mode: ada -*-
+pragma suppress (All_Checks);

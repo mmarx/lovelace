@@ -17,10 +17,12 @@ abstract project Common is
      case Mode is
        when "debug" =>
          for Default_Switches ("Ada")
-           use ("-ggdb") & Common_Switches;
+           use ("-O0",
+                "-ggdb") & Common_Switches;
        when "release" =>
          for Default_Switches ("Ada")
            use ("-O3") & Common_Switches;
+         for Local_Configuration_Pragmas use "release.adc";
      end case;
   end Compiler;
 
