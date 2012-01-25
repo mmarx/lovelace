@@ -30,23 +30,39 @@ procedure Lovelace is
 
   use M;
 
-  --  A : aliased constant Matrix := (1 => (1 => 1.0, 2 => 1.0),
-  --                                  2 => (1 => 1.0, 2 => 0.0));
-  --  B : aliased constant Vector := (1 => 23.0, 2 => 42.0);
-
-  type Parameter_Type (N : Integer) is record
+  type LU_Parameter_Type is record
     A : Matrix_Access;
     B : Vector_Access;
   end record;
 
-  package BM is new Timings.Benchmarks (Parameter_Type);
+  type Matmul_Parameter_Type is record
+    A : Matrix_Access;
+    B : Matrix_Access;
+  end record;
 
-  procedure Benchmark_LU (Parameters : in Parameter_Type) is
+  package LU_Benchmark is new Timings.Benchmarks (LU_Parameter_Type);
+
+  pragma Unreferenced (LU_Benchmark);
+
+  package Matmul_Benchmark is new Timings.Benchmarks (Matmul_Parameter_Type);
+
+  procedure Benchmark_LU (Parameters : in LU_Parameter_Type) is
     X : Vector_Access := G.LU_Solve (Parameters.A, Parameters.B);
 
   begin
     Free (X);
   end Benchmark_LU;
+
+  pragma Unreferenced (Benchmark_LU);
+
+  procedure Benchmark_Matmul (Parameters : in Matmul_Parameter_Type) is
+    X : Matrix_Access := new Matrix (Parameters.A.all'Range (2),
+                                     Parameters.B.all'Range (1));
+  begin
+    X.all := Parameters.A.all * Parameters.B.all;
+
+    Free (X);
+  end Benchmark_Matmul;
 
   function Matrix_From_File (Name : String;
                              Rows, Columns : Positive)
@@ -72,18 +88,16 @@ procedure Lovelace is
 begin
   Z1024.all := (others => 0.0);
 
-  --  BM.Benchmark (What => Benchmark_LU'Access,
-  --                Name => "2x2 LU decomposition",
-  --                Parameters => (N => 2,
-  --                               A => A'Access,
-  --                               B => B'Access));
+  Matmul_Benchmark.Benchmark (What => Benchmark_Matmul'Access,
+                              Name => "1024x1024 single matmul",
+                              Parameters => (A => A1024,
+                                             B => A1024));
 
-  BM.Benchmark (What => Benchmark_LU'Access,
-                Name => "1024x1024 single LU decomposition",
-                Parameters => (N => 1024,
-                               A => A1024,
-                               B => Z1024));
+  --  LU_Benchmark.Benchmark (What => Benchmark_LU'Access,
+  --                          Name => "1024x1024 single LU decomposition",
+  --                          Parameters => (A => A1024,
+  --                                         B => Z1024));
 
-  Free (A1024);
   Free (Z1024);
+  Free (A1024);
 end Lovelace;
