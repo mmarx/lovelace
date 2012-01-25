@@ -7,23 +7,25 @@ with Timings;
 with Timings.Benchmarks;
 
 procedure Lovelace is
+  type My_Float is digits 7;
+
   use Ada.Text_IO;
-  package F_IO is new Float_IO (Float);
+  package F_IO is new Float_IO (My_Float);
 
   use F_IO;
 
   procedure Put (File : File_Type;
-                 Item : in Float) is
+                 Item : in My_Float) is
   begin
     F_IO.Put (File, Item);
   end Put;
 
-  procedure Put (Item : in Float) is
+  procedure Put (Item : in My_Float) is
   begin
     F_IO.Put (Item);
   end Put;
 
-  package M is new Matrices (Scalar => Float,
+  package M is new Matrices (Scalar => My_Float,
                              Zero => 0.0,
                              One => 1.0);
   package G is new M.Gaussian;
