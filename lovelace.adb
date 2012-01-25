@@ -7,7 +7,7 @@ with Timings;
 with Timings.Benchmarks;
 
 procedure Lovelace is
-  type My_Float is digits 7;
+  type My_Float is new Float;
 
   use Ada.Text_IO;
   package F_IO is new Float_IO (My_Float);
@@ -43,9 +43,6 @@ procedure Lovelace is
   end record;
 
   package LU_Benchmark is new Timings.Benchmarks (LU_Parameter_Type);
-
-  pragma Unreferenced (LU_Benchmark);
-
   package Matmul_Benchmark is new Timings.Benchmarks (Matmul_Parameter_Type);
 
   procedure Benchmark_LU (Parameters : in LU_Parameter_Type) is
@@ -54,8 +51,6 @@ procedure Lovelace is
   begin
     Free (X);
   end Benchmark_LU;
-
-  pragma Unreferenced (Benchmark_LU);
 
   procedure Benchmark_Matmul (Parameters : in Matmul_Parameter_Type) is
     X : Matrix_Access := new Matrix (Parameters.A.all'Range (2),
@@ -91,14 +86,16 @@ begin
   Z1024.all := (others => 0.0);
 
   Matmul_Benchmark.Benchmark (What => Benchmark_Matmul'Access,
-                              Name => "1024x1024 single matmul",
+                              Name => "1024x1024 matmul, digits" &
+                                Integer'Image (My_Float'Digits),
                               Parameters => (A => A1024,
                                              B => A1024));
 
-  --  LU_Benchmark.Benchmark (What => Benchmark_LU'Access,
-  --                          Name => "1024x1024 single LU decomposition",
-  --                          Parameters => (A => A1024,
-  --                                         B => Z1024));
+  LU_Benchmark.Benchmark (What => Benchmark_LU'Access,
+                          Name => "1024x1024 LU decomposition, digits" &
+                            Integer'Image (My_Float'Digits),
+                          Parameters => (A => A1024,
+                                         B => Z1024));
 
   Free (Z1024);
   Free (A1024);
