@@ -158,14 +158,17 @@ package body Matrices is
 
   function "*" (Left, Right : in Matrix) return Matrix is
     Result : Matrix (Left'Range (1),
-                     Right'Range (2));
+                     Right'Range (2)) := (others =>
+                                            (others => Zero));
   begin
     Equal_Range (Column (Left, Left'First (2)),
                  Row (Right, Right'First (1)));
 
     for I in Result'Range (1) loop
-      for J in Result'Range (2) loop
-        Result (I, J) := Row (Left, I) * Column (Right, J);
+      for K in Left'Range (2) loop
+        for J in Result'Range (2) loop
+          Result (I, J) := Result (I, J) + Left (I, K) * Right (K, J);
+        end loop;
       end loop;
     end loop;
 
