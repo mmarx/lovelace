@@ -52,6 +52,11 @@ procedure Lovelace is
     Free (X);
   end Benchmark_LU;
 
+  procedure Benchmark_LU_Destructive (Parameters : in LU_Parameter_Type) is
+  begin
+    G.LU_Solve_Destructive (Parameters.A, Parameters.B);
+  end Benchmark_LU_Destructive;
+
   procedure Benchmark_Matmul (Parameters : in Matmul_Parameter_Type) is
     X : Matrix_Access := new Matrix (Parameters.A.all'Range (2),
                                      Parameters.B.all'Range (1));
@@ -93,6 +98,12 @@ begin
 
   LU_Benchmark.Benchmark (What => Benchmark_LU'Access,
                           Name => "1024x1024 LU decomposition, digits" &
+                            Integer'Image (My_Float'Digits),
+                          Parameters => (A => A1024,
+                                         B => Z1024));
+
+  LU_Benchmark.Benchmark (What => Benchmark_LU_Destructive'Access,
+                          Name => "1024x1024 destructive LU decomposition, digits" &
                             Integer'Image (My_Float'Digits),
                           Parameters => (A => A1024,
                                          B => Z1024));
