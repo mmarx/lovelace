@@ -34,7 +34,8 @@ abstract project Common is
      case Mode is
        when "debug" =>
          for Switches ("Ada")
-           use ("-ggdb") & Common_Switches;
+           use ("-O0",
+                "-ggdb") & Common_Switches;
        when "release" =>
          for Switches ("Ada")
            use ("-O3") & Common_Switches;
