@@ -1,3 +1,7 @@
+with Ada.Strings;
+with Ada.Strings.Fixed;
+with Ada.Text_IO.Editing;
+
 with sys_resource_h;
 with x86_64_linux_gnu_bits_time_h;
 with x86_64_linux_gnu_bits_resource_h;
@@ -8,16 +12,6 @@ package body Timings is
   subtype Long is Interfaces.C.long;
 
   package I_IO is new Ada.Text_IO.Integer_IO (Long);
-
-  function "-" (Left, Right : in Time_Type) return Time_Type is
-    Result : constant Time_Type := (Seconds =>
-                                      Left.Seconds - Right.Seconds,
-                                    Micro_Seconds =>
-                                      Left.Micro_Seconds -
-                                      Right.Micro_Seconds);
-  begin
-    return Result;
-  end "-";
 
   function "-" (Left, Right : in Usage_Type) return Usage_Type is
     Result : constant Usage_Type := (User_Time =>
@@ -52,10 +46,8 @@ package body Timings is
     use type Interfaces.C.int;
 
     function Time_Type_From_Timeval (Tv : in BT.timeval) return Time_Type is
-      T : constant Time_Type := (Seconds =>
-                                   Seconds_Type (Tv.tv_sec),
-                                 Micro_Seconds =>
-                                   Micro_Seconds_Type (Tv.tv_usec));
+      T : constant Time_Type := (Time_Type (Tv.tv_sec) +
+                                   10.0 ** (-6) * Time_Type (Tv.tv_usec));
     begin
       return T;
     end Time_Type_From_Timeval;
@@ -96,11 +88,18 @@ package body Timings is
 
   procedure Put (File : in File_Type;
                  Item : in Time_Type) is
-    use I_IO;
+    package D_IO is new Editing.Decimal_Output (Time_Type);
+
+    use Ada.Strings;
+    use Editing;
+    use Fixed;
+    use D_IO;
+
+    Pic : constant Picture := To_Picture ("Z(11)9.9(6)");
+    Time : String (1 .. 19) := (others => ' ');
   begin
-    Put (File => File, Item => Long (Item.Seconds), Width => 0);
-    Put (File => File, Item => ".");
-    Put (File => File, Item => Long (Item.Micro_Seconds), Width => 0);
+    Put (To => Time, Item => Item, Pic => Pic);
+    Put (File => File, Item => Trim (Source => Time, Side => Both));
   end Put;
 
   procedure Put (Item : in Usage_Type) is
