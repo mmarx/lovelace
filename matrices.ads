@@ -63,6 +63,7 @@ package Matrices is
   function "*" (Left : in Matrix;
                 Right : in Vector) return Vector;
   function "*" (Left, Right : in Matrix) return Matrix;
+  function "*" (Left, Right : in Matrix_Access) return Matrix_Access;
 
   function Row (A : in Matrix;
                 M : in Integer) return Vector;

@@ -1,4 +1,8 @@
 with Ada.Text_IO;
+with Ada.Strings;
+with Ada.Strings.Fixed;
+with Ada.Unchecked_Deallocation;
+with Ada.Numerics.Generic_Real_Arrays;
 
 with Matrices;
 with Matrices.Gaussian;
@@ -7,7 +11,13 @@ with Timings;
 with Timings.Benchmarks;
 
 procedure Lovelace is
-  type My_Float is new Float;
+  use Ada.Strings;
+  use Ada.Strings.Fixed;
+
+  Size : constant Positive := 2049;
+  SSize : constant String := Trim (Integer'Image (Size), Left);
+
+  type My_Float is new Long_Float;
 
   use Ada.Text_IO;
   package F_IO is new Float_IO (My_Float);
@@ -58,13 +68,32 @@ procedure Lovelace is
   end Benchmark_LU_Destructive;
 
   procedure Benchmark_Matmul (Parameters : in Matmul_Parameter_Type) is
-    X : Matrix_Access := new Matrix (Parameters.A.all'Range (2),
-                                     Parameters.B.all'Range (1));
+    X : Matrix_Access := new Matrix (Parameters.A.all'Range (1),
+                                     Parameters.B.all'Range (2));
+    --X : Matrix_Access; -- := Parameters.A * Parameters.B;
   begin
     X.all := Parameters.A.all * Parameters.B.all;
+    --X := Parameters.A * Parameters.B;
 
     Free (X);
   end Benchmark_Matmul;
+
+  procedure Benchmark_Intrinsic_Matmul (Parameters : in Matmul_Parameter_Type) is
+    package M is new Ada.Numerics.Generic_Real_Arrays (My_Float);
+    use M;
+
+    type Real_Matrix_Access is access Real_Matrix;
+
+    procedure Free is new Ada.Unchecked_Deallocation (Object => Real_Matrix,
+                                                      Name => Real_Matrix_Access);
+
+    X : Real_Matrix_Access := new Real_Matrix (Parameters.A'Range (1),
+                                               Parameters.B'Range (2));
+  begin
+    X.all := Real_Matrix (Parameters.A.all) * Real_Matrix (Parameters.B.all);
+
+    Free (X);
+  end Benchmark_Intrinsic_Matmul;
 
   function Matrix_From_File (Name : String;
                              Rows, Columns : Positive)
@@ -83,27 +112,33 @@ procedure Lovelace is
     return Result;
   end Matrix_From_File;
 
-  A1024 : Matrix_Access := Matrix_From_File (Name => "/home/mmarx/danielbench/data/single-float-1024",
-                                             Rows => 1024,
-                                             Columns => 1024);
-  Z1024 : Vector_Access := new Vector (1 .. 1024); -- => 0.0);
+  A1024 : Matrix_Access := Matrix_From_File (Name => "/home/mmarx/danielbench/data/single-float-" & SSize,
+                                             Rows => Size,
+                                             Columns => Size);
+  Z1024 : Vector_Access := new Vector (1 .. Size); -- => 0.0);
 begin
   Z1024.all := (others => 0.0);
 
+  Matmul_Benchmark.Benchmark (What => Benchmark_Intrinsic_Matmul'Access,
+                              Name => SSize & "x" & SSize & " intrinsic matmul, digits" &
+                                Integer'Image (My_Float'Digits),
+                              Parameters => (A => A1024,
+                                             B => A1024));
+
   Matmul_Benchmark.Benchmark (What => Benchmark_Matmul'Access,
-                              Name => "1024x1024 matmul, digits" &
+                              Name => SSize & "x" & SSize & " matmul, digits" &
                                 Integer'Image (My_Float'Digits),
                               Parameters => (A => A1024,
                                              B => A1024));
 
   LU_Benchmark.Benchmark (What => Benchmark_LU'Access,
-                          Name => "1024x1024 LU decomposition, digits" &
+                          Name => SSize & "x" & SSize & " LU decomposition, digits" &
                             Integer'Image (My_Float'Digits),
                           Parameters => (A => A1024,
                                          B => Z1024));
 
   LU_Benchmark.Benchmark (What => Benchmark_LU_Destructive'Access,
-                          Name => "1024x1024 destructive LU decomposition, digits" &
+                          Name => SSize & "x" & SSize & " destructive LU decomposition, digits" &
                             Integer'Image (My_Float'Digits),
                           Parameters => (A => A1024,
                                          B => Z1024));

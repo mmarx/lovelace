@@ -175,6 +175,26 @@ package body Matrices is
     return Result;
   end "*";
 
+  function "*" (Left, Right : in Matrix_Access) return Matrix_Access is
+    Result : constant Matrix_Access := new Matrix (Left.all'Range (1), Right.all'Range (2));
+  begin
+    Result.all := (others =>
+                     (others => Zero));
+
+    --  Equal_Range (Column (Left.all, Left.all'First (2)),
+    --               Row (Right.all, Right.all'First (1)));
+
+    for I in Result.all'Range (1) loop
+      for K in Left.all'Range (2) loop
+        for J in Result.all'Range (2) loop
+          Result.all (I, J) := Result.all (I, J) + Left.all (I, K) * Right.all (K, J);
+        end loop;
+      end loop;
+    end loop;
+
+    return Result;
+  end "*";
+
   function Row (A : in Matrix;
                 M : in Integer) return Vector is
     Result : Vector (A'Range (2));
